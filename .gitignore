@@ -35,3 +35,6 @@ Thumbs.db
 .env.test.local
 .env.production.local
 *.pem
+
+
+auto_meme_generator_medium_guide.md
