@@ -61,8 +61,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "input_cleanup" {
 
 # Create the Secret
 resource "aws_secretsmanager_secret" "gemini_key" {
-  name        = "auto-meme/gemini-key-${random_id.suffix.hex}"
-  description = "API Key for Gemini 2.5 Flash"
+  name                    = "auto-meme/gemini-key-${random_id.suffix.hex}"
+  description             = "API Key for Gemini 2.5 Flash"
+  recovery_window_in_days = 0
 }
 
 # Bootstrap with a dummy value (we will set the real one in the console)
