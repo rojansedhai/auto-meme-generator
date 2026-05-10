@@ -1,0 +1,9 @@
+{
+  "name": "upload",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Upload Lambda — presigned URL generator",
+  "dependencies": {
+    "@aws-sdk/s3-request-presigner": "^3.787.0"
+  }
+}

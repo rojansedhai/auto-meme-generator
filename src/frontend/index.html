@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto Meme Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Neobrutalism Theme ──────────────────────────────────────────────── */
+    :root {
+      --bg: #ffdf00; /* Bright yellow */
+      --card-bg: #ffffff;
+      --black: #000000;
+      --primary: #f472b6; /* Pink */
+      --secondary: #38bdf8; /* Cyan */
+      --success: #4ade80; /* Green */
+      --border-width: 3px;
+      --shadow-depth: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Public Sans', sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      display: flex;
+      justify-content: center;
+      padding: 60px 20px;
+      line-height: 1.5;
+      background-image: radial-gradient(#000 1px, transparent 0);
+      background-size: 30px 30px;
+      background-position: -19px -19px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    header {
+      margin-bottom: 40px;
+      text-align: center;
+      background: #fff;
+      border: var(--border-width) solid var(--black);
+      padding: 24px;
+      box-shadow: var(--shadow-depth) var(--shadow-depth) 0px var(--black);
+    }
+    
+    header h1 {
+      font-size: 36px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: var(--border-width) solid var(--black);
+      padding: 32px;
+      box-shadow: var(--shadow-depth) var(--shadow-depth) 0px var(--black);
+    }
+
+    /* ─── Drop Zone ─────────────────────────────────────────────────────────── */
+    #drop-zone {
+      border: var(--border-width) dashed var(--black);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      background: #f8fafc;
+      transition: all 0.1s ease;
+    }
+
+    #drop-zone:hover, #drop-zone.drag-over {
+      background: var(--secondary);
+    }
+
+    .icon-svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      stroke-width: 2.5;
+    }
+
+    .drop-title {
+      font-weight: 900;
+      font-size: 20px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .drop-subtitle {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    
+    .link {
+      text-decoration: underline;
+      text-decoration-thickness: 3px;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+    .link:hover { background: var(--black); color: #fff; }
+
+    #file-input { display: none; }
+
+    /* ─── Buttons ───────────────────────────────────────────────────────────── */
+    button {
+      font-family: 'Public Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: var(--border-width) solid var(--black);
+      box-shadow: 4px 4px 0px var(--black);
+      transition: all 0.1s ease;
+    }
+
+    button:active:not(:disabled) {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px var(--black);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--black);
+      padding: 16px;
+      width: 100%;
+      margin-top: 24px;
+      font-size: 20px;
+    }
+    .btn-primary:hover:not(:disabled) { background: #fbcfe8; }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; background: #cbd5e1; }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--black);
+      padding: 10px 16px;
+    }
+    .btn-secondary:hover { background: #f1f5f9; }
+
+    /* ─── Preview ───────────────────────────────────────────────────────────── */
+    #preview-section { display: none; margin-bottom: 24px; }
+    .image-preview-wrapper {
+      border: var(--border-width) solid var(--black);
+      padding: 8px;
+      background: #f8fafc;
+      margin-bottom: 16px;
+    }
+    #preview-img, #result-img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      display: block;
+      border: var(--border-width) solid var(--black);
+    }
+    .file-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    /* ─── Progress ──────────────────────────────────────────────────────────── */
+    #progress-section { display: none; margin-top: 24px; }
+    .status-text {
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      background: var(--black);
+      color: #fff;
+      display: inline-block;
+      padding: 4px 12px;
+      transform: rotate(-1deg);
+    }
+    .steps {
+      border: var(--border-width) solid var(--black);
+      background: #fff;
+    }
+    .step {
+      padding: 16px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      border-bottom: var(--border-width) solid var(--black);
+      font-weight: 700;
+    }
+    .step:last-child { border-bottom: none; }
+    
+    .step-icon {
+      width: 24px; height: 24px;
+      margin-right: 16px;
+      border: var(--border-width) solid var(--black);
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step.active { background: var(--secondary); }
+    .step.active .step-icon { animation: spin 1s linear infinite; }
+    .step.done { background: var(--success); }
+    .step.done .step-icon { background: var(--black); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Result ────────────────────────────────────────────────────────────── */
+    #result-section { display: none; }
+    .result-alert {
+      background: var(--success);
+      border: var(--border-width) solid var(--black);
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      box-shadow: 4px 4px 0px var(--black);
+      display: flex;
+      align-items: center;
+    }
+    
+    .caption-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .caption-box {
+      border: var(--border-width) solid var(--black);
+      padding: 16px;
+      background: #f8fafc;
+      box-shadow: 4px 4px 0px var(--black);
+    }
+    .caption-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 900;
+      margin-bottom: 8px;
+      background: var(--black);
+      color: #fff;
+      display: inline-block;
+      padding: 2px 8px;
+    }
+    .caption-value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 16px;
+    }
+    .button-group button { flex: 1; }
+
+    /* ─── Error ─────────────────────────────────────────────────────────────── */
+    #error-msg {
+      display: none;
+      background: #f87171;
+      border: var(--border-width) solid var(--black);
+      box-shadow: 4px 4px 0px var(--black);
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 900;
+      margin-top: 24px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Meme Generator</h1>
+    <p>Upload an image. We handle the rest.</p>
+  </header>
+
+  <div class="card">
+    
+    <!-- Drop Zone -->
+    <div id="drop-zone">
+      <svg class="icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="square" stroke-linejoin="miter" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+      </svg>
+      <div class="drop-title">Select an image</div>
+      <div class="drop-subtitle">or drag and drop it here. <span class="link" id="browse-link">Browse files</span></div>
+    </div>
+    <input type="file" id="file-input" accept="image/jpeg,image/jpg,image/png" />
+
+    <!-- Preview Section -->
+    <div id="preview-section">
+      <div class="image-preview-wrapper">
+        <img id="preview-img" alt="Preview" />
+      </div>
+      <div class="file-meta">
+        <span id="file-name"></span>
+        <button id="btn-change" class="btn-secondary">Change file</button>
+      </div>
+    </div>
+
+    <!-- Generate Button -->
+    <button id="btn-generate" class="btn-primary" style="display: none;">Generate Meme</button>
+
+    <!-- Error Message -->
+    <div id="error-msg"></div>
+
+    <!-- Progress Tracking -->
+    <div id="progress-section">
+      <div class="status-text" id="progress-label">Processing...</div>
+      <div class="steps">
+        <div class="step" id="step-upload">
+          <div class="step-icon"></div>
+          <span class="step-name">Uploading to S3</span>
+        </div>
+        <div class="step" id="step-analyze">
+          <div class="step-icon"></div>
+          <span class="step-name">Analyzing Image</span>
+        </div>
+        <div class="step" id="step-caption">
+          <div class="step-icon"></div>
+          <span class="step-name">Writing Caption</span>
+        </div>
+        <div class="step" id="step-compose">
+          <div class="step-icon"></div>
+          <span class="step-name">Composing Meme</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result-section">
+      <div class="result-alert">
+        <svg style="width:24px;height:24px;margin-right:12px;stroke-width:3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" d="M5 13l4 4L19 7"></path></svg>
+        Meme Completed
+      </div>
+      
+      <div class="image-preview-wrapper">
+        <img id="result-img" alt="Generated Meme" />
+      </div>
+
+      <div class="caption-grid">
+        <div class="caption-box">
+          <div class="caption-label">Top Text</div>
+          <div class="caption-value" id="top-text-display"></div>
+        </div>
+        <div class="caption-box">
+          <div class="caption-label">Bottom Text</div>
+          <div class="caption-value" id="bottom-text-display"></div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-secondary" id="btn-download" style="background:var(--secondary);">Download</button>
+        <button class="btn-secondary" id="btn-new" style="background:var(--primary);">Make Another</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CONFIGURATION
+  // ─────────────────────────────────────────────────────────────────────────────
+  const API_BASE_URL = "https://mxrbniito5.execute-api.us-east-1.amazonaws.com";
+
+  let selectedFile = null;
+  let pollTimer    = null;
+
+  const dropZone       = document.getElementById('drop-zone');
+  const fileInput      = document.getElementById('file-input');
+  const browseLink     = document.getElementById('browse-link');
+  const previewSection = document.getElementById('preview-section');
+  const previewImg     = document.getElementById('preview-img');
+  const fileNameEl     = document.getElementById('file-name');
+  const btnChange      = document.getElementById('btn-change');
+  const btnGenerate    = document.getElementById('btn-generate');
+  const errorMsg       = document.getElementById('error-msg');
+  const progressSection= document.getElementById('progress-section');
+  const progressLabel  = document.getElementById('progress-label');
+  const resultSection  = document.getElementById('result-section');
+  const resultImg      = document.getElementById('result-img');
+  const topTextDisplay = document.getElementById('top-text-display');
+  const botTextDisplay = document.getElementById('bottom-text-display');
+  const btnDownload    = document.getElementById('btn-download');
+  const btnNew         = document.getElementById('btn-new');
+
+  // Event Listeners
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  dropZone.addEventListener('click', () => fileInput.click());
+  browseLink.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+  btnChange.addEventListener('click', resetToUpload);
+  btnGenerate.addEventListener('click', startPipeline);
+  btnNew.addEventListener('click', resetToUpload);
+
+  function handleFile(file) {
+    if (!file.type.startsWith('image/')) return showError('Please select a valid image file (JPEG or PNG).');
+    if (file.size > 10 * 1024 * 1024)    return showError('File size must be under 10 MB.');
+    
+    selectedFile = file;
+    previewImg.src = URL.createObjectURL(file);
+    fileNameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+    
+    dropZone.style.display = 'none';
+    previewSection.style.display = 'block';
+    btnGenerate.style.display = 'block';
+    hideError();
+  }
+
+  async function startPipeline() {
+    if (!selectedFile) return;
+    hideError();
+    btnGenerate.disabled = true;
+    showProgress();
+
+    try {
+      setStep('upload', 'active');
+      progressLabel.textContent = 'Requesting secure upload URL...';
+      const uploadRes = await fetch(`${API_BASE_URL}/upload`, { method: 'POST' });
+      if (!uploadRes.ok) throw new Error('Failed to initialize upload. Please try again.');
+      
+      const { memeId, uploadUrl } = await uploadRes.json();
+
+      progressLabel.textContent = 'Uploading to S3...';
+      const jpegBlob = await toJpegBlob(selectedFile);
+      const putRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'image/jpeg' },
+        body: jpegBlob
+      });
+      
+      if (!putRes.ok) throw new Error('Upload failed. CORS configuration might be incorrect.');
+      setStep('upload', 'done');
+
+      setStep('analyze', 'active');
+      progressLabel.textContent = 'Processing...';
+      pollForResult(memeId);
+
+    } catch (err) {
+      showError(err.message);
+      btnGenerate.disabled = false;
+      hideProgress();
+    }
+  }
+
+  async function toJpegBlob(file) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width; canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas conversion failed')), 'image/jpeg', 0.92);
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  let pollCount = 0;
+  const POLL_LABELS = [
+    { after: 0,  step: 'analyze', label: 'Analyzing image contents...' },
+    { after: 6,  step: 'caption', label: 'Generating caption with AI...' },
+    { after: 12, step: 'compose', label: 'Rendering final image...' }
+  ];
+
+  function pollForResult(memeId) {
+    pollCount = 0;
+    pollTimer = setInterval(async () => {
+      pollCount++;
+      
+      for (const { after, step, label } of POLL_LABELS) {
+        if (pollCount === after + 1) { 
+          setStep(step, 'active'); 
+          progressLabel.textContent = label; 
+        }
+      }
+      
+      if (pollCount > 30) { 
+        clearInterval(pollTimer); 
+        showError('Request timed out. Please check the backend logs.'); 
+        hideProgress(); 
+        btnGenerate.disabled = false; 
+        return; 
+      }
+
+      try {
+        const res  = await fetch(`${API_BASE_URL}/status/${memeId}`);
+        const data = await res.json();
+        
+        if (data.status === 'COMPLETED') {
+          clearInterval(pollTimer);
+          setStep('compose', 'done');
+          progressLabel.textContent = 'Complete';
+          setTimeout(() => showResult(data), 500);
+        }
+      } catch (e) {
+        // Silently continue polling on network errors
+      }
+    }, 2000);
+  }
+
+  function showResult({ memeUrl, topText, bottomText }) {
+    resultImg.src = memeUrl;
+    topTextDisplay.textContent = topText || 'N/A';
+    botTextDisplay.textContent = bottomText || 'N/A';
+    
+    progressSection.style.display = 'none';
+    resultSection.style.display = 'block';
+
+    btnDownload.onclick = () => {
+      const a = document.createElement('a');
+      a.href = memeUrl;
+      a.download = 'meme.jpg';
+      a.click();
+    };
+  }
+
+  function setStep(id, state) {
+    const el = document.getElementById(`step-${id}`);
+    if (!el) return;
+    el.classList.remove('active', 'done');
+    if (state) el.classList.add(state);
+    
+    // Auto-mark previous steps as done
+    const steps = ['upload', 'analyze', 'caption', 'compose'];
+    const currentIndex = steps.indexOf(id);
+    for (let i = 0; i < currentIndex; i++) {
+      document.getElementById(`step-${steps[i]}`).className = 'step done';
+    }
+  }
+
+  function showProgress() {
+    previewSection.style.display = 'none';
+    btnGenerate.style.display = 'none';
+    progressSection.style.display = 'block';
+    resultSection.style.display = 'none';
+    ['upload','analyze','caption','compose'].forEach(s => setStep(s, ''));
+  }
+
+  function hideProgress() { 
+    progressSection.style.display = 'none'; 
+  }
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.style.display = 'block';
+  }
+
+  function hideError() { 
+    errorMsg.style.display = 'none'; 
+  }
+
+  function resetToUpload() {
+    clearInterval(pollTimer);
+    selectedFile = null;
+    fileInput.value = '';
+    dropZone.style.display = 'block';
+    previewSection.style.display = 'none';
+    btnGenerate.style.display = 'none';
+    progressSection.style.display = 'none';
+    resultSection.style.display = 'none';
+    btnGenerate.disabled = false;
+    hideError();
+  }
+</script>
+</body>
+</html>

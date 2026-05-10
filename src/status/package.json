@@ -1,0 +1,9 @@
+{
+  "name": "status",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Status Lambda — meme polling endpoint",
+  "dependencies": {
+    "@aws-sdk/s3-request-presigner": "^3.787.0"
+  }
+}
