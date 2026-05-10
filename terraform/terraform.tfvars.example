@@ -1,0 +1,7 @@
+# The AWS Region to deploy your infrastructure in
+# If left blank, it defaults to "us-east-1"
+aws_region = "us-east-1"
+
+# Note: The Gemini API Key is purposefully NOT tracked in Terraform state variables 
+# to keep your codebase secure. You must manually inject it into the AWS Secrets 
+# Manager console ("auto-meme/gemini-key-...") after running terraform apply.
