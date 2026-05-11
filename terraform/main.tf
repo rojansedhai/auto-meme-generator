@@ -7,11 +7,13 @@ resource "random_id" "suffix" {
 }
 
 resource "aws_s3_bucket" "input" {
-  bucket = "meme-input-${random_id.suffix.hex}"
+  bucket        = "meme-input-${random_id.suffix.hex}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket" "output" {
-  bucket = "meme-output-${random_id.suffix.hex}"
+  bucket        = "meme-output-${random_id.suffix.hex}"
+  force_destroy = true
 }
 
 # Explicit block for the Input Bucket
@@ -90,7 +92,8 @@ resource "aws_s3_bucket_cors_configuration" "input_cors" {
 
 # ── Frontend S3 static website bucket ────────────────────────────────────────
 resource "aws_s3_bucket" "frontend" {
-  bucket = "meme-frontend-${random_id.suffix.hex}"
+  bucket        = "meme-frontend-${random_id.suffix.hex}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "frontend_block" {
