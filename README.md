@@ -35,21 +35,23 @@ terraform init
 terraform plan
 terraform apply
 ```
-*Note: Make sure to review the planned resources before typing `yes`. Terraform will output essential variables like your API Gateway URL and Frontend S3 Bucket name once complete.*
+*Note: Make sure to review the planned resources before typing `yes`. Terraform will provision all AWS resources and automatically sync your frontend code to the S3 bucket.*
 
 ### 2. Configure the Frontend
 1. Open `src/frontend/index.html`.
 2. Locate the API endpoint variable (e.g., `const API_URL = '...'`) and replace it with the **API Gateway URL** from your Terraform outputs.
 
-### 3. Deploy the Frontend
-Upload your frontend assets to the newly created S3 bucket. You can do this via the AWS Console or using the AWS CLI:
+### 3. Access the Application
+CloudFront distributions can take a few minutes to fully deploy. Once the status shows as `Deployed` in the AWS Console, you can visit the **CloudFront URL** provided in the Terraform outputs to view and use your Auto-Meme Generator!
+
+### 4. Teardown & Cleanup
+To avoid incurring unwanted AWS charges, you can cleanly destroy all resources when you are done testing:
 
 ```bash
-aws s3 sync ../src/frontend s3://<YOUR_FRONTEND_BUCKET_NAME> --delete
+cd terraform
+terraform destroy
 ```
-
-### 4. Wait for CloudFront
-CloudFront distributions can take a few minutes to fully deploy. Once the status shows as `Deployed` in the AWS Console, you can visit the CloudFront Domain Name to view and use your Auto-Meme Generator!
+*Note: We have configured `force_destroy = true` on the S3 buckets, meaning Terraform will automatically empty and delete the buckets without requiring manual intervention.*
 
 ## 🛡️ Security
 
